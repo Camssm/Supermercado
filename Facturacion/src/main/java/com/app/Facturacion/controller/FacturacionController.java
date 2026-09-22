@@ -17,7 +17,8 @@ import com.app.Facturacion.service.FacturacionService;
 
 @RestController
 @RequestMapping("/api/facturacion")
-public class FacturacionController { @Autowired
+public class FacturacionController { 
+	@Autowired
 	//DE ACA A ABAJO A CAMBIAR TODOOO
 	
 	private FacturacionService facturacionService;
