@@ -1,4 +1,4 @@
-package com.app.Administracion.entity;
+package com.app.Facturacion.entity;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -7,9 +7,11 @@ import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 
 @Entity
-@Table(name = "administracion")
-public class Administracion {
-
+@Table(name = "facturacion")
+public class Facturacion {
+	
+//A CAMBIAR TODOO
+	
 	    @Id
 		@GeneratedValue(strategy = GenerationType.IDENTITY)
 	    private int id;

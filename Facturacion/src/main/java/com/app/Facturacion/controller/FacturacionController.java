@@ -1,4 +1,4 @@
-package com.app.Administracion.controller;
+package com.app.Facturacion.controller;
 
 import java.util.List;
 
@@ -11,25 +11,27 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.app.Administracion.entity.Administracion;
-import com.app.Administracion.service.AdministracionService;
+import com.app.Facturacion.entity.Facturacion;
+import com.app.Facturacion.service.AdministracionService;
 
 
 @RestController
-@RequestMapping("/api/administracion")
-public class AdministracionController { @Autowired
+@RequestMapping("/api/facturacion")
+public class FacturacionController { @Autowired
+	//DE ACA A ABAJO A CAMBIAR TODOOO
+	
 	private AdministracionService administracionService;
 
 	@RequestMapping(value = "/Administracion", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
-	public ResponseEntity<List<Administracion>> listar() 
+	public ResponseEntity<List<Facturacion>> listar() 
 	{
 		return new ResponseEntity<>(administracionService.listar(), HttpStatus.OK);
 	}
 	
 	@RequestMapping(value = "/agregar", method = RequestMethod.PUT, produces = MediaType.APPLICATION_JSON_VALUE)
-	public ResponseEntity<List<Administracion>> agregar(@RequestBody Administracion administracion)
+	public ResponseEntity<List<Facturacion>> agregar(@RequestBody Facturacion facturacion)
 	{
-		administracionService.agregar(administracion);
+		administracionService.agregar(facturacion);
 		return new ResponseEntity<>(HttpStatus.CREATED);
 	}
 }
