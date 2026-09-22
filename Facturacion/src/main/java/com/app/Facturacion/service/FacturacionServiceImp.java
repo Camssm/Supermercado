@@ -10,7 +10,7 @@ import com.app.Facturacion.entity.Facturacion;
 import com.app.Facturacion.repository.FacturacionRepository;
 
 @Service
-public class AdministracionServiceImp implements AdministracionService{
+public class FacturacionServiceImp implements FacturacionService{
 
 	@Autowired
 	FacturacionRepository facturacionRepository;

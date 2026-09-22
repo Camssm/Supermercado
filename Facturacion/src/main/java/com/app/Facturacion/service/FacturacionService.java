@@ -4,7 +4,7 @@ import java.util.List;
 
 import com.app.Facturacion.entity.Facturacion;
 
-public interface AdministracionService {
+public interface FacturacionService {
 
 	public List<Facturacion> listar();
 

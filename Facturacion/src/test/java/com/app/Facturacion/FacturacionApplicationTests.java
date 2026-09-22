@@ -1,10 +1,10 @@
-package com.app.Administracion;
+package com.app.Facturacion;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest
-class AdministracionApplicationTests {
+class FacturacionApplicationTests {
 
 	@Test
 	void contextLoads() {

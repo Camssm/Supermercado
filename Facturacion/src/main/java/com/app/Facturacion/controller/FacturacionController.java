@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.app.Facturacion.entity.Facturacion;
-import com.app.Facturacion.service.AdministracionService;
+import com.app.Facturacion.service.FacturacionService;
 
 
 @RestController
@@ -20,18 +20,18 @@ import com.app.Facturacion.service.AdministracionService;
 public class FacturacionController { @Autowired
 	//DE ACA A ABAJO A CAMBIAR TODOOO
 	
-	private AdministracionService administracionService;
+	private FacturacionService facturacionService;
 
 	@RequestMapping(value = "/Administracion", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<List<Facturacion>> listar() 
 	{
-		return new ResponseEntity<>(administracionService.listar(), HttpStatus.OK);
+		return new ResponseEntity<>(facturacionService.listar(), HttpStatus.OK);
 	}
 	
 	@RequestMapping(value = "/agregar", method = RequestMethod.PUT, produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<List<Facturacion>> agregar(@RequestBody Facturacion facturacion)
 	{
-		administracionService.agregar(facturacion);
+		facturacionService.agregar(facturacion);
 		return new ResponseEntity<>(HttpStatus.CREATED);
 	}
 }
