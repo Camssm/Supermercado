@@ -1,12 +1,12 @@
-package com.app.Alumno.service;
+package com.app.Productos.service;
 
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.app.Alumno.entity.Alumno;
-import com.app.Alumno.repository.Alumnorepository;
+import com.app.Productos.entity.Alumno;
+import com.app.Productos.repository.Alumnorepository;
 
 @Service
 public class AlumnoServiceImp implements AlumnoService {
