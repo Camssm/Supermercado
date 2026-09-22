@@ -1,4 +1,4 @@
-package com.app.Alumno;
+package com.app.Productos;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;

@@ -1,7 +1,8 @@
-package com.app.Alumno.service;
+package com.app.Productos.service;
 
 import java.util.List;
-import com.app.Alumno.entity.Alumno;
+
+import com.app.Productos.entity.Alumno;
 
 public interface AlumnoService {
 	

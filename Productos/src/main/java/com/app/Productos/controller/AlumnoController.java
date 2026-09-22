@@ -1,4 +1,4 @@
-package com.app.Alumno.controller;
+package com.app.Productos.controller;
 
 import java.util.List;
 
@@ -10,8 +10,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
-import com.app.Alumno.entity.Alumno; 
-import com.app.Alumno.service.AlumnoService;
+
+import com.app.Productos.entity.Alumno;
+import com.app.Productos.service.AlumnoService;
 
 @RestController
 @RequestMapping(value = "/api/alumnos")
