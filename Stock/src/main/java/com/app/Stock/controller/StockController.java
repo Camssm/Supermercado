@@ -1,4 +1,4 @@
-package com.app.Cursos.controller;
+package com.app.Stock.controller;
 
 import java.util.List;
 
@@ -11,26 +11,26 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.app.Cursos.entity.Cursos;
-import com.app.Cursos.service.CursosService;
+import com.app.Stock.entity.Stock;
+import com.app.Stock.service.StockService;
 
 @RestController
 @RequestMapping(value = "/api/cursos")
-public class CursosController {
+public class StockController {
 
 		@Autowired
-		private CursosService cursosService;
+		private StockService stockService;
 		
 		@RequestMapping(value = "/cursos", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
-		public ResponseEntity<List<Cursos>> listar() 
+		public ResponseEntity<List<Stock>> listar() 
 		{
-			return new ResponseEntity<>(cursosService.listar(), HttpStatus.OK);
+			return new ResponseEntity<>(stockService.listar(), HttpStatus.OK);
 		}
 		
 		@RequestMapping(value = "/agregar", method = RequestMethod.PUT, produces = MediaType.APPLICATION_JSON_VALUE)
-		public ResponseEntity<List<Cursos>> agregar(@RequestBody Cursos cursos)
+		public ResponseEntity<List<Stock>> agregar(@RequestBody Stock stock)
 		{
-			cursosService.agregar(cursos);
+			stockService.agregar(stock);
 			return new ResponseEntity<>(HttpStatus.CREATED);
 		}
 	}
