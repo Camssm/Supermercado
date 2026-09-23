@@ -11,26 +11,26 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.app.Productos.entity.Alumno;
-import com.app.Productos.service.AlumnoService;
+import com.app.Productos.entity.Productos;
+import com.app.Productos.service.ProductosService;
 
 @RestController
 @RequestMapping(value = "/api/alumnos")
-public class AlumnoController {
+public class ProductosController {
 
 	@Autowired
-	private AlumnoService alumnoService;
+	private ProductosService productosService;
 	
 	@RequestMapping(value = "/alumnos", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
-	public ResponseEntity<List<Alumno>> listar() 
+	public ResponseEntity<List<Productos>> listar() 
 	{
-		return new ResponseEntity(alumnoService.listar(), HttpStatus.OK);
+		return new ResponseEntity(productosService.listar(), HttpStatus.OK);
 	}
 	
 	@RequestMapping(value = "/agregar", method = RequestMethod.PUT, produces = MediaType.APPLICATION_JSON_VALUE)
-	public ResponseEntity<List<Alumno>> agregar(@RequestBody Alumno alumno)
+	public ResponseEntity<List<Productos>> agregar(@RequestBody Productos productos)
 	{
-		alumnoService.agregar(alumno);
+		productosService.agregar(productos);
 		return new ResponseEntity<>(HttpStatus.CREATED);
 	}
 }

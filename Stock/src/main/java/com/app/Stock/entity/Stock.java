@@ -1,4 +1,4 @@
-package com.app.Cursos.entity;
+package com.app.Stock.entity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -9,7 +9,7 @@ import jakarta.persistence.Table;
 
 @Entity
 @Table(name="cursos")
-public class Cursos {
+public class Stock {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -21,7 +21,7 @@ public class Cursos {
 	@Column(name = "administracion_id")
 	private long administracionId;
 	
-	public Cursos() {
+	public Stock() {
 		super();
 	}
 

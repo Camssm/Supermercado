@@ -9,7 +9,7 @@ import jakarta.persistence.Table;
 
 @Entity
 @Table(name="alumnos")
-public class Alumno {
+public class Productos {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -21,7 +21,7 @@ public class Alumno {
 	 @Column(name = "curso_id")
 	    private Long cursoId;
 	
-	public Alumno() {
+	public Productos() {
 		super();
 	}
 
