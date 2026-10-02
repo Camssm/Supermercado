@@ -1,0 +1,95 @@
+services:
+
+  eurekaserver:
+    build:
+      context: ./registry
+    container_name: eurekaserver
+    ports:
+      - "8761:8761"
+    networks:
+      - escuela-network
+
+  configserver:
+    build:
+      context: ./springconfigserver
+    container_name: configserver
+    ports:
+      - "8888:8888"
+    networks:
+      - escuela-network
+    depends_on:
+      - eurekaserver
+
+  admin-service:
+    build:
+      context: ./admin-service
+      dockerfile: Dockerfile
+    container_name: admin-service
+    ports:
+      - "9090:9090"
+    networks:
+      - escuela-network
+    depends_on:
+      - eurekaserver
+      - configserver
+
+  ms-cursos:
+    build:
+      context: ./Cursos
+      dockerfile: Dockerfile
+    container_name: ms-cursos
+    environment:
+      SPRING_H2_CONSOLE_SETTINGS_WEB_ALLOW_OTHERS: "true"
+    depends_on:
+      - eurekaserver
+    ports:
+      - "8081:8081"
+    networks:
+      - escuela-network
+
+  ms-alumnos:
+    build:
+      context: ./Alumno
+      dockerfile: Dockerfile
+    container_name: ms-alumnos
+    environment:
+      SPRING_H2_CONSOLE_SETTINGS_WEB_ALLOW_OTHERS: "true"
+    depends_on:
+      - eurekaserver
+    ports:
+      - "8082:8082"
+    networks:
+      - escuela-network
+
+  ms-administracion:
+    build:
+      context: ./Administracion
+      dockerfile: Dockerfile
+    container_name: ms-administracion
+    environment:
+      SPRING_H2_CONSOLE_SETTINGS_WEB_ALLOW_OTHERS: "true"
+    depends_on:
+      - eurekaserver
+    ports:
+      - "8083:8083"
+    networks:
+      - escuela-network
+
+  gateway:
+    build:
+      context: ./gateway
+    container_name: gateway
+    ports:
+      - "8080:8080"
+    networks:
+      - escuela-network
+    depends_on:
+      - eurekaserver
+      - configserver
+      - ms-cursos
+      - ms-alumnos
+      - ms-administracion
+
+networks:
+  escuela-network:
+    driver: bridge
