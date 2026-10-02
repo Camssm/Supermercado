@@ -14,24 +14,31 @@ import org.springframework.web.bind.annotation.RestController;
 import com.app.Facturacion.entity.Facturacion;
 import com.app.Facturacion.service.FacturacionService;
 
-
 @RestController
 @RequestMapping("/api/facturacion")
-public class FacturacionController { @Autowired
-	//DE ACA A ABAJO A CAMBIAR TODOOO
-	
-	private FacturacionService facturacionService;
+public class FacturacionController {
 
-	@RequestMapping(value = "/Administracion", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
-	public ResponseEntity<List<Facturacion>> listar() 
-	{
-		return new ResponseEntity<>(facturacionService.listar(), HttpStatus.OK);
-	}
-	
-	@RequestMapping(value = "/agregar", method = RequestMethod.PUT, produces = MediaType.APPLICATION_JSON_VALUE)
-	public ResponseEntity<List<Facturacion>> agregar(@RequestBody Facturacion facturacion)
-	{
-		facturacionService.agregar(facturacion);
-		return new ResponseEntity<>(HttpStatus.CREATED);
-	}
+    @Autowired
+    private FacturacionService facturacionService;
+
+    // DE ACA A ABAJO A CAMBIAR TODOOO
+
+    @RequestMapping(
+        value = "/Administracion",
+        method = RequestMethod.GET,
+        produces = MediaType.APPLICATION_JSON_VALUE
+    )
+    public ResponseEntity<List<Facturacion>> listar() {
+        return new ResponseEntity<>(facturacionService.listar(), HttpStatus.OK);
+    }
+
+    @RequestMapping(
+        value = "/agregar",
+        method = RequestMethod.PUT,
+        produces = MediaType.APPLICATION_JSON_VALUE
+    )
+    public ResponseEntity<List<Facturacion>> agregar(@RequestBody Facturacion facturacion) {
+        facturacionService.agregar(facturacion);
+        return new ResponseEntity<>(HttpStatus.CREATED);
+    }
 }

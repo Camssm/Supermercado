@@ -15,43 +15,28 @@ import com.app.Stock.entity.Stock;
 import com.app.Stock.service.StockService;
 
 @RestController
-<<<<<<< HEAD
-@RequestMapping(value = "/api/cursos")
-public class StockController {
-
-		@Autowired
-		private StockService stockService;
-		
-		@RequestMapping(value = "/cursos", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
-		public ResponseEntity<List<Stock>> listar() 
-		{
-			return new ResponseEntity<>(stockService.listar(), HttpStatus.OK);
-		}
-		
-		@RequestMapping(value = "/agregar", method = RequestMethod.PUT, produces = MediaType.APPLICATION_JSON_VALUE)
-		public ResponseEntity<List<Stock>> agregar(@RequestBody Stock stock)
-		{
-			stockService.agregar(stock);
-			return new ResponseEntity<>(HttpStatus.CREATED);
-		}
-	}
-
-=======
 @RequestMapping(value = "/api/stock")
 public class StockController {
 
     @Autowired
     private StockService stockService;
 
-    @RequestMapping(value = "/stock", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    @RequestMapping(
+        value = "/stock",
+        method = RequestMethod.GET,
+        produces = MediaType.APPLICATION_JSON_VALUE
+    )
     public ResponseEntity<List<Stock>> listar() {
         return new ResponseEntity<>(stockService.listar(), HttpStatus.OK);
     }
 
-    @RequestMapping(value = "/agregar", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
+    @RequestMapping(
+        value = "/agregar",
+        method = RequestMethod.POST,
+        produces = MediaType.APPLICATION_JSON_VALUE
+    )
     public ResponseEntity<List<Stock>> agregar(@RequestBody Stock stock) {
         stockService.agregar(stock);
         return new ResponseEntity<>(HttpStatus.CREATED);
     }
 }
->>>>>>> parte-sab
