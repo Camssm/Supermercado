@@ -15,7 +15,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Entity
-@Table(name="productos")
+@Table(name = "productos")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -23,7 +23,7 @@ public class Producto {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private int id;
+	private Long id;
 	private String nombre;
 	private String codigoDeBarras;
 	private Categoria categoria;
@@ -33,5 +33,4 @@ public class Producto {
 	private String imagenUrl;
 	private int stock;
 
-	
 }

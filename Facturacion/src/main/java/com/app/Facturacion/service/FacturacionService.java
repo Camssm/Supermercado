@@ -2,12 +2,14 @@ package com.app.Facturacion.service;
 
 import java.util.List;
 
-import com.app.Facturacion.entity.Facturacion;
+import com.app.Facturacion.dto.FacturacionAgregarDto;
+import com.app.Facturacion.dto.FacturacionDto;
 
 public interface FacturacionService {
 
-	public List<Facturacion> listar();
+	FacturacionDto agregar(FacturacionAgregarDto facturacion);
 
-	void agregar(Facturacion facturacion);
+	List<FacturacionDto> listar();
 
+	FacturacionDto buscarPorId(Long id);
 }
