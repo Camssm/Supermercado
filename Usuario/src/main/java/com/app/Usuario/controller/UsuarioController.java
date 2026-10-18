@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.app.Usuario.dto.UsuarioDto;
 import com.app.Usuario.dto.UsuarioRegistroDto;
+import com.app.Usuario.dto.UsuarioLoginDto;
 import com.app.Usuario.service.UsuarioService;
 
 @RestController
@@ -49,6 +50,19 @@ public class UsuarioController {
 
         if (usuario == null) {
             return ResponseEntity.notFound().build();
+        }
+
+        return ResponseEntity.ok(usuario);
+    }
+    
+    @PostMapping("/validar-login")
+    public ResponseEntity<UsuarioDto> validarLogin(
+            @RequestBody UsuarioLoginDto login) {
+
+        UsuarioDto usuario = usuarioService.validarCredenciales(login);
+
+        if (usuario == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
 
         return ResponseEntity.ok(usuario);

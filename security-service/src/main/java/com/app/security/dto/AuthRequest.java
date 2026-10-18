@@ -2,18 +2,18 @@ package com.app.security.dto;
 
 public class AuthRequest {
 
-    private String username;
+    private String nombreCompleto;
     private String password;
 
     public AuthRequest() {
     }
 
-    public String getUsername() {
-        return username;
+    public String getNombreCompleto() {
+        return nombreCompleto;
     }
 
-    public void setUsername(String username) {
-        this.username = username;
+    public void setNombreCompleto(String nombreCompleto) {
+        this.nombreCompleto = nombreCompleto;
     }
 
     public String getPassword() {

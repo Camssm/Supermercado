@@ -5,6 +5,7 @@ import java.util.List;
 
 import com.app.Usuario.dto.UsuarioDto;
 import com.app.Usuario.dto.UsuarioRegistroDto;
+import com.app.Usuario.dto.UsuarioLoginDto;
 
 public interface UsuarioService {
 
@@ -13,4 +14,6 @@ public interface UsuarioService {
     List<UsuarioDto> listar();
 
     UsuarioDto obtenerPorNombreCompleto(String nombreCompleto);
+
+    UsuarioDto validarCredenciales(UsuarioLoginDto login);
 }

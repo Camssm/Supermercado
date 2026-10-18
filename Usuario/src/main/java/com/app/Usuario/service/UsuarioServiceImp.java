@@ -7,6 +7,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.app.Usuario.dto.UsuarioDto;
+import com.app.Usuario.dto.UsuarioLoginDto;
 import com.app.Usuario.dto.UsuarioRegistroDto;
 import com.app.Usuario.entity.Usuario;
 import com.app.Usuario.enums.Rol;
@@ -86,5 +87,30 @@ public class UsuarioServiceImp implements UsuarioService {
         return usuarioRepository.findByNombreCompleto(nombreCompleto)
                 .map(usuarioMapper::toDto)
                 .orElse(null);
+    }
+    
+    @Override
+    public UsuarioDto validarCredenciales(UsuarioLoginDto login) {
+        if (login == null
+                || login.getNombreCompleto() == null
+                || login.getPassword() == null) {
+            return null;
+        }
+
+        Usuario usuario = usuarioRepository
+                .findByNombreCompleto(login.getNombreCompleto())
+                .orElse(null);
+
+        if (usuario == null) {
+            return null;
+        }
+
+        if (!passwordEncoder.matches(
+                login.getPassword(),
+                usuario.getPassword())) {
+            return null;
+        }
+
+        return usuarioMapper.toDto(usuario);
     }
 }
