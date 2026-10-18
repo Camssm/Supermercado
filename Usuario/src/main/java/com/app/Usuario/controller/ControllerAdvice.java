@@ -46,7 +46,6 @@ public class ControllerAdvice extends ResponseEntityExceptionHandler {
         return construir(HttpStatus.BAD_REQUEST, "U-400", ex.getMessage(), request.getRequestURI());
     }
 
-    // NUEVO: restricciones de base de datos (por ejemplo, email duplicado simultáneo)
     @ExceptionHandler(DataIntegrityViolationException.class)
     public ResponseEntity<ErrorDto> integridadHandler(DataIntegrityViolationException ex,
                                                       HttpServletRequest request) {
@@ -64,7 +63,6 @@ public class ControllerAdvice extends ResponseEntityExceptionHandler {
                 "Error interno del servidor", request.getRequestURI());
     }
 
-    // NUEVO: errores de @Valid, campo por campo
     @Override
     protected ResponseEntity<Object> handleMethodArgumentNotValid(
             MethodArgumentNotValidException ex, HttpHeaders headers,
@@ -86,7 +84,6 @@ public class ControllerAdvice extends ResponseEntityExceptionHandler {
         return ResponseEntity.badRequest().body(error);
     }
 
-    // NUEVO: JSON mal formado o tipos incorrectos, con mensaje en español
     @Override
     protected ResponseEntity<Object> handleHttpMessageNotReadable(
             HttpMessageNotReadableException ex, HttpHeaders headers,

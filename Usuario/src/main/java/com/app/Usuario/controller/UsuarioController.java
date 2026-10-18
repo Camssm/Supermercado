@@ -2,37 +2,62 @@ package com.app.Usuario.controller;
 
 import java.util.List;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.app.Usuario.entity.Usuario;
+import com.app.Usuario.dto.UsuarioDto;
+import com.app.Usuario.dto.UsuarioRegistroDto;
+import com.app.Usuario.dto.UsuarioLoginDto;
 import com.app.Usuario.service.UsuarioService;
 
 import jakarta.validation.Valid;
 
 @RestController
-@RequestMapping(value = "/api/usuario")
+@RequestMapping("/api/usuario")
 public class UsuarioController {
 
-	@Autowired
-	private UsuarioService usuarioService;
+	private final UsuarioService usuarioService;
 
-	@RequestMapping(value = "/usuarios", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
-	public ResponseEntity<List<Usuario>> listar()
-	{
-		return new ResponseEntity<>(usuarioService.listar(), HttpStatus.OK);
+	public UsuarioController(UsuarioService usuarioService) {
+		this.usuarioService = usuarioService;
 	}
 
-	@RequestMapping(value = "/agregar", method = RequestMethod.PUT, produces = MediaType.APPLICATION_JSON_VALUE)
-	public ResponseEntity<Void> agregar(@Valid @RequestBody Usuario usuario)
-	{
-		usuarioService.agregar(usuario);
-		return new ResponseEntity<>(HttpStatus.CREATED);
+	@PostMapping("/registro")
+	public ResponseEntity<UsuarioDto> registrar(@Valid @RequestBody UsuarioRegistroDto registro) {
+
+		UsuarioDto usuario = usuarioService.registrar(registro);
+
+		return ResponseEntity.status(HttpStatus.CREATED).body(usuario);
+	}
+
+	@GetMapping("/usuarios")
+	public ResponseEntity<List<UsuarioDto>> listar() {
+		return ResponseEntity.ok(usuarioService.listar());
+	}
+
+	@GetMapping("/{nombreCompleto}")
+	public ResponseEntity<UsuarioDto> obtenerPorNombreCompleto(@PathVariable String nombreCompleto) {
+
+		UsuarioDto usuario = usuarioService.obtenerPorNombreCompleto(nombreCompleto);
+
+		return ResponseEntity.ok(usuario);
+	}
+
+	@PostMapping("/validar-login")
+	public ResponseEntity<UsuarioDto> validarLogin(@RequestBody UsuarioLoginDto login) {
+
+		UsuarioDto usuario = usuarioService.validarCredenciales(login);
+
+		if (usuario == null) {
+			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+		}
+
+		return ResponseEntity.ok(usuario);
 	}
 }

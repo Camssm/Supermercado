@@ -19,8 +19,8 @@ public class RestConfig {
         RestTemplate restTemplate = new RestTemplate();
 
         restTemplate.getInterceptors().add((request, body, execution) -> {
-            request.getHeaders().add("X-Gateway-Secret", internalSecret);
-            return execution.execute(request, body);
+        	request.getHeaders().set("X-Gateway-Secret", internalSecret);
+        	return execution.execute(request, body);
         });
 
         return restTemplate;

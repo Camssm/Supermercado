@@ -1,4 +1,4 @@
-package com.escuela.security.service;
+package com.app.security.service;
 
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
@@ -25,13 +25,14 @@ public class JwtProvider {
         return Keys.hmacShaKeyFor(keyBytes);
     }
 
-    public String createToken(String username) {
+    public String createToken(String nombreCompleto, String rol) {
 
         Date now = new Date();
         Date validity = new Date(now.getTime() + expirationTime);
 
         return Jwts.builder()
-                .setSubject(username)
+                .setSubject(nombreCompleto)
+                .claim("rol", rol)
                 .setIssuedAt(now)
                 .setExpiration(validity)
                 .signWith(getSignKey(), SignatureAlgorithm.HS256)

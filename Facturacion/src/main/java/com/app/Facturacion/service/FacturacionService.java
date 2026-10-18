@@ -7,9 +7,9 @@ import com.app.Facturacion.dto.FacturacionDto;
 
 public interface FacturacionService {
 
-	FacturacionDto agregar(FacturacionAgregarDto facturacion);
+	FacturacionDto agregar(FacturacionAgregarDto facturacion, String cliente, String rol);
 
-	List<FacturacionDto> listar();
+	List<FacturacionDto> listar(String cliente, String rol);
 
-	FacturacionDto buscarPorId(Long id);
+	FacturacionDto buscarPorId(Long id, String cliente, String rol);
 }

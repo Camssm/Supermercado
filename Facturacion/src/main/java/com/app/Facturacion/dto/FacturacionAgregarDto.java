@@ -17,10 +17,6 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class FacturacionAgregarDto implements IMapper<Facturacion> {
 
-	@NotBlank(message = "El cliente es obligatorio")
-	@Size(max = 150, message = "El nombre del cliente no puede superar los 150 caracteres")
-	private String cliente;
-
 	@NotEmpty(message = "La factura debe tener al menos un producto")
 	@Valid
 	private List<@Valid DetalleFacturaAgregarDto> detalles = new ArrayList<>();
@@ -28,8 +24,6 @@ public class FacturacionAgregarDto implements IMapper<Facturacion> {
 	@Override
 	public Facturacion mapperTo() {
 		Facturacion facturacion = new Facturacion();
-
-		facturacion.setCliente(cliente);
 
 		for (DetalleFacturaAgregarDto dto : detalles) {
 			facturacion.getDetalles().add(dto.mapperTo());

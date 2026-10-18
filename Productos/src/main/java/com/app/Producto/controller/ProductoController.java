@@ -8,6 +8,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -33,7 +34,12 @@ public class ProductoController {
 	}
 
 	@RequestMapping(value = "/agregar", method = RequestMethod.PUT)
-	public ResponseEntity<Void> agregar(@Valid @RequestBody ProductoAgregarDto productoDto) throws Exception {
+	public ResponseEntity<Void> agregar(@RequestHeader(value = "X-User-Rol", required = false) String rol,
+			@Valid @RequestBody ProductoAgregarDto productoDto) throws Exception {
+		
+		if (!esAdmin(rol)) {
+			return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+		}
 
 		productoService.agregar(productoDto);
 
@@ -47,7 +53,12 @@ public class ProductoController {
 	}
 
 	@RequestMapping(value = "/editar", method = RequestMethod.PUT)
-	public ResponseEntity<Void> editar(@Valid @RequestBody ProductoEditarDto productoDto) throws Exception {
+	public ResponseEntity<Void> editar(@RequestHeader(value = "X-User-Rol", required = false) String rol,
+			@Valid @RequestBody ProductoEditarDto productoDto) throws Exception {
+
+		if (!esAdmin(rol)) {
+			return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+		}
 
 		productoService.editar(productoDto);
 
@@ -55,7 +66,12 @@ public class ProductoController {
 	}
 
 	@RequestMapping(value = "/eliminar/{id}", method = RequestMethod.DELETE)
-	public ResponseEntity<Void> eliminar(@PathVariable Long id) throws Exception {
+	public ResponseEntity<Void> eliminar(@PathVariable Long id,
+			@RequestHeader(value = "X-User-Rol", required = false) String rol) throws Exception {
+
+		if (!esAdmin(rol)) {
+			return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+		}
 
 		productoService.eliminar(id);
 
@@ -71,10 +87,19 @@ public class ProductoController {
 	}
 
 	@RequestMapping(value = "/{id}/stock/ingresar", method = RequestMethod.PUT)
-	public ResponseEntity<Void> ingresarStock(@PathVariable Long id, @RequestParam Integer cantidad) {
+	public ResponseEntity<Void> ingresarStock(@PathVariable Long id, @RequestParam Integer cantidad,
+			@RequestHeader(value = "X-User-Rol", required = false) String rol) {
+
+		if (!esAdmin(rol)) {
+			return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+		}
 
 		productoService.ingresarStock(id, cantidad);
 
 		return ResponseEntity.ok().build();
+	}
+
+	private boolean esAdmin(String rol) {
+		return "ADMIN".equalsIgnoreCase(rol);
 	}
 }

@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.client.RestTemplate;
@@ -39,13 +40,22 @@ public class FacturacionServiceImp implements FacturacionService {
 	private RabbitTemplate rabbitTemplate;
 
 	@Override
-	public List<FacturacionDto> listar() {
-		return facturacionRepository.findAll().stream().map(this::convertirADto).toList();
+	public List<FacturacionDto> listar(String cliente, String rol) {
+
+		validarUsuario(cliente, rol);
+
+		if ("ADMIN".equalsIgnoreCase(rol)) {
+			return facturacionRepository.findAll().stream().map(this::convertirADto).toList();
+		}
+
+		return facturacionRepository.findByClienteIgnoreCase(cliente).stream().map(this::convertirADto).toList();
 	}
 
 	@Override
 	@Transactional
-	public FacturacionDto agregar(FacturacionAgregarDto dto) {
+	public FacturacionDto agregar(FacturacionAgregarDto dto, String cliente, String rol) {
+
+		validarUsuario(cliente, rol);
 
 		if (dto == null || dto.getDetalles() == null || dto.getDetalles().isEmpty()) {
 			throw new IllegalArgumentException("La factura debe tener al menos un producto");
@@ -53,7 +63,8 @@ public class FacturacionServiceImp implements FacturacionService {
 
 		Facturacion facturacion = dto.mapperTo();
 
-		// Sumamos las cantidades de los productos repetidos.
+		facturacion.setCliente(cliente);
+
 		Map<Long, Integer> cantidades = new HashMap<>();
 
 		for (var detalle : facturacion.getDetalles()) {
@@ -69,7 +80,6 @@ public class FacturacionServiceImp implements FacturacionService {
 			cantidades.merge(detalle.getProductoId(), detalle.getCantidad(), Integer::sum);
 		}
 
-		// Consultamos los productos y comprobamos el stock.
 		Map<Long, ProductoDto> productos = new HashMap<>();
 
 		for (Long productoId : cantidades.keySet()) {
@@ -84,7 +94,6 @@ public class FacturacionServiceImp implements FacturacionService {
 			productos.put(productoId, producto);
 		}
 
-		// Completamos los detalles con los datos obtenidos de Productos.
 		for (var detalle : facturacion.getDetalles()) {
 
 			ProductoDto producto = productos.get(detalle.getProductoId());
@@ -97,10 +106,8 @@ public class FacturacionServiceImp implements FacturacionService {
 		facturacion.setFecha(LocalDateTime.now());
 		facturacion.calcularTotal();
 
-		// Guardamos la factura.
 		Facturacion guardada = facturacionRepository.save(facturacion);
 
-		// Preparamos el evento para informar las ventas a Productos.
 		FacturacionEvent evento = new FacturacionEvent();
 		evento.setFacturaId(guardada.getId());
 
@@ -118,19 +125,39 @@ public class FacturacionServiceImp implements FacturacionService {
 
 		evento.setProductos(productosVendidos);
 
-		// Publicamos el evento para que Productos procese la venta.
 		rabbitTemplate.convertAndSend(RabbitMQConfig.EXCHANGE, RabbitMQConfig.ROUTING_KEY, evento);
 
 		return convertirADto(guardada);
 	}
 
 	@Override
-	public FacturacionDto buscarPorId(Long id) {
+	public FacturacionDto buscarPorId(Long id, String cliente, String rol) {
+
+		validarUsuario(cliente, rol);
 
 		Facturacion facturacion = facturacionRepository.findById(id)
 				.orElseThrow(() -> new FacturaNoEncontradaException(id));
 
+		if ("ADMIN".equalsIgnoreCase(rol)) {
+			return convertirADto(facturacion);
+		}
+
+		if (facturacion.getCliente() == null || !facturacion.getCliente().equalsIgnoreCase(cliente)) {
+			throw new ResponseStatusException(HttpStatus.FORBIDDEN, "No tenés permiso para consultar esta factura");
+		}
+
 		return convertirADto(facturacion);
+	}
+
+	private void validarUsuario(String cliente, String rol) {
+
+		if (cliente == null || cliente.isBlank() || rol == null || rol.isBlank()) {
+			throw new ResponseStatusException(HttpStatus.FORBIDDEN, "No se pudo identificar al usuario autenticado");
+		}
+
+		if (!"ADMIN".equalsIgnoreCase(rol) && !"CLIENTE".equalsIgnoreCase(rol)) {
+			throw new ResponseStatusException(HttpStatus.FORBIDDEN, "No tenés permiso para realizar esta operación");
+		}
 	}
 
 	private ProductoDto obtenerProducto(Long productoId) {

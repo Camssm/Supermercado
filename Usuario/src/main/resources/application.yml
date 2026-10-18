@@ -1,9 +1,9 @@
 spring:
-application:
-  name: MS-USUARIO
+  application:
+    name: MS-USUARIO
 
-profiles:
-  active: dev
+  profiles:
+    active: dev
 
-config:
-  import: "optional:configserver:http://localhost:8888"
+  config:
+    import: "optional:configserver:http://localhost:8888"

@@ -1,4 +1,4 @@
-package com.escuela.security.config;
+package com.app.Producto.config;
 
 import io.swagger.v3.oas.models.Components;
 import io.swagger.v3.oas.models.OpenAPI;
@@ -16,36 +16,27 @@ public class OpenApiConfig {
     @Bean
     public OpenAPI customOpenAPI() {
 
-        final String securitySchemeName = "bearerAuth";
+        String securitySchemeName = "bearerAuth";
 
         return new OpenAPI()
-
                 .info(new Info()
-                        .title("API de Seguridad - Colegio")
+                        .title("API de Productos")
                         .version("1.0")
-                        .description("Autenticación JWT"))
-
+                        .description("Gestión de productos"))
                 .addServersItem(
                         new Server()
                                 .url("http://localhost:8080")
-                                .description("API Gateway")
-                )
-
+                                .description("API Gateway"))
                 .addSecurityItem(
                         new SecurityRequirement()
-                                .addList(securitySchemeName)
-                )
-
+                                .addList(securitySchemeName))
                 .components(
                         new Components()
                                 .addSecuritySchemes(
                                         securitySchemeName,
                                         new SecurityScheme()
-                                                .name(securitySchemeName)
                                                 .type(SecurityScheme.Type.HTTP)
                                                 .scheme("bearer")
-                                                .bearerFormat("JWT")
-                                )
-                );
+                                                .bearerFormat("JWT")));
     }
 }
