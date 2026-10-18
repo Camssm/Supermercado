@@ -1,9 +1,18 @@
 spring:
-  application:
-    name: MS-PRODUCTOS
+application:
+  name: MS-PRODUCTOS
 
-  profiles:
-    active: dev
+profiles:
+  active: dev
 
-  config:
-    import: "optional:configserver:http://localhost:8888"
+config:
+  import: "optional:configserver:http://localhost:8888"
+
+rabbitmq:
+  listener:
+    simple:
+      default-requeue-rejected: false
+      retry:
+        enabled: true
+        max-attempts: 3
+        initial-interval: 1000ms

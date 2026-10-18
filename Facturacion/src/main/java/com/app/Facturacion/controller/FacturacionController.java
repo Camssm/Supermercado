@@ -1,4 +1,3 @@
-
 package com.app.Facturacion.controller;
 
 import java.util.List;
@@ -15,6 +14,8 @@ import org.springframework.web.bind.annotation.RestController;
 import com.app.Facturacion.dto.FacturacionAgregarDto;
 import com.app.Facturacion.dto.FacturacionDto;
 import com.app.Facturacion.service.FacturacionService;
+
+import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping(value = "/api/facturacion")
@@ -36,7 +37,7 @@ public class FacturacionController {
 	}
 
 	@RequestMapping(value = "/agregar", method = RequestMethod.PUT)
-	public ResponseEntity<FacturacionDto> agregar(@RequestBody FacturacionAgregarDto facturaDto) {
+	public ResponseEntity<FacturacionDto> agregar(@Valid @RequestBody FacturacionAgregarDto facturaDto) {
 
 		FacturacionDto factura = facturacionService.agregar(facturaDto);
 

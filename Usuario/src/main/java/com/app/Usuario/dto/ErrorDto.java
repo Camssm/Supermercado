@@ -1,12 +1,16 @@
 package com.app.Usuario.dto;
 
 import java.time.LocalDateTime;
+import java.util.Map;
+
+import com.fasterxml.jackson.annotation.JsonInclude;
 
 import lombok.Builder;
 import lombok.Data;
 
 @Data
 @Builder
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class ErrorDto {
 
     private LocalDateTime timestamp;
@@ -14,4 +18,5 @@ public class ErrorDto {
     private String code;
     private String message;
     private String path;
+    private Map<String, String> errores;
 }

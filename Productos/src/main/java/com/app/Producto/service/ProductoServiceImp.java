@@ -25,24 +25,6 @@ public class ProductoServiceImp implements ProductoService {
     @Override
     public void agregar(IMapper<Producto> mapper) throws Exception {
         Producto p = mapper.mapperTo();
-
-        if (p == null) {
-            throw new IllegalArgumentException("El producto no puede ser nulo");
-        }
-
-        if (p.getNombre() == null || p.getNombre().isBlank()) {
-            throw new IllegalArgumentException("El nombre es obligatorio");
-        }
-
-        if (p.getPrecioUnitario() == null ||
-                p.getPrecioUnitario().signum() < 0) {
-            throw new IllegalArgumentException("El precio no puede ser negativo");
-        }
-
-        if (p.getStock() < 0) {
-            throw new IllegalArgumentException("El stock no puede ser negativo");
-        }
-
         productoRepository.save(p);
     }
 
@@ -87,24 +69,9 @@ public class ProductoServiceImp implements ProductoService {
     public void editar(IMapper<Producto> mapper) throws Exception {
         Producto datos = mapper.mapperTo();
 
-        if (datos == null || datos.getId() <= 0) {
-            throw new IllegalArgumentException(
-                    "Se necesita un ID válido para editar");
-        }
-
         Producto existente = productoRepository.findById(datos.getId())
                 .orElseThrow(() -> new ProductoNoEncontradoException(datos.getId()));
 
-        if (datos.getNombre() == null || datos.getNombre().isBlank()) {
-            throw new IllegalArgumentException("El nombre es obligatorio");
-        }
-
-        if (datos.getPrecioUnitario() == null ||
-                datos.getPrecioUnitario().signum() < 0) {
-            throw new IllegalArgumentException("El precio no puede ser negativo");
-        }
-
-        // Actualizamos los datos del producto existente.
         existente.setNombre(datos.getNombre());
         existente.setCodigoDeBarras(datos.getCodigoDeBarras());
         existente.setCategoria(datos.getCategoria());
@@ -113,7 +80,6 @@ public class ProductoServiceImp implements ProductoService {
         existente.setPrecioUnitario(datos.getPrecioUnitario());
         existente.setImagenUrl(datos.getImagenUrl());
 
-        // El stock se gestiona por separado.
         productoRepository.save(existente);
     }
 

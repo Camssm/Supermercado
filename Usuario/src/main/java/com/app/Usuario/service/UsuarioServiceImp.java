@@ -17,26 +17,15 @@ public class UsuarioServiceImp implements UsuarioService {
 
 	@Override
 	public List<Usuario> listar() {
-
-		List<Usuario> registros = this.usuarioRepository.findAll();
-		return registros;
+		return this.usuarioRepository.findAll();
 	}
 
 	@Override
 	public void agregar(Usuario usuario) {
-		if (usuario == null || usuario.getEmail() == null || usuario.getEmail().isBlank()) {
-			throw new IllegalArgumentException("El email es obligatorio");
-		}
-
-		if (usuario.getPassword() == null || usuario.getPassword().length() < 6) {
-			throw new IllegalArgumentException("La contraseña debe tener al menos 6 caracteres");
-		}
-
 		if (usuarioRepository.existsByEmail(usuario.getEmail())) {
 			throw new UsuarioDuplicadoException(usuario.getEmail());
 		}
 
 		this.usuarioRepository.save(usuario);
 	}
-
 }

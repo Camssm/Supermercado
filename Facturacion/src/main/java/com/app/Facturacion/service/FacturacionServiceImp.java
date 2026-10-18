@@ -1,5 +1,6 @@
 package com.app.Facturacion.service;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -9,11 +10,13 @@ import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.client.RestTemplate;
 
 import com.app.Facturacion.config.RabbitMQConfig;
+import com.app.Facturacion.dto.DetalleFacturaDto;
 import com.app.Facturacion.dto.FacturacionAgregarDto;
 import com.app.Facturacion.dto.FacturacionDto;
 import com.app.Facturacion.dto.ProductoDto;
@@ -41,24 +44,14 @@ public class FacturacionServiceImp implements FacturacionService {
 	}
 
 	@Override
+	@Transactional
 	public FacturacionDto agregar(FacturacionAgregarDto dto) {
-		if (dto == null || dto.getDetalles() == null || dto.getDetalles().isEmpty()) {
-			throw new IllegalArgumentException("La factura debe tener al menos un producto");
-		}
-
+		// La forma del DTO (detalles, IDs, cantidades) ya la validó @Valid en el controller.
 		Facturacion facturacion = dto.mapperTo();
 
 		Map<Long, Integer> cantidades = new HashMap<>();
 
 		for (var detalle : facturacion.getDetalles()) {
-			if (detalle.getProductoId() == null || detalle.getProductoId() <= 0) {
-				throw new IllegalArgumentException("El ID del producto no es válido");
-			}
-
-			if (detalle.getCantidad() == null || detalle.getCantidad() <= 0) {
-				throw new IllegalArgumentException("La cantidad debe ser mayor que cero");
-			}
-
 			cantidades.merge(detalle.getProductoId(), detalle.getCantidad(), Integer::sum);
 		}
 
@@ -83,19 +76,17 @@ public class FacturacionServiceImp implements FacturacionService {
 			detalle.calcularSubtotal();
 		}
 
-		facturacion.setFecha(java.time.LocalDateTime.now());
+		facturacion.setFecha(LocalDateTime.now());
 		facturacion.calcularTotal();
 
 		Facturacion guardada = facturacionRepository.save(facturacion);
 
 		FacturacionEvent evento = new FacturacionEvent();
-
 		evento.setFacturaId(guardada.getId());
 
 		List<FacturacionEvent.ProductoVendidoEvent> productosVendidos = new ArrayList<>();
 
 		for (var detalle : guardada.getDetalles()) {
-
 			FacturacionEvent.ProductoVendidoEvent producto = new FacturacionEvent.ProductoVendidoEvent();
 
 			producto.setProductoId(detalle.getProductoId());
@@ -109,7 +100,6 @@ public class FacturacionServiceImp implements FacturacionService {
 		rabbitTemplate.convertAndSend(RabbitMQConfig.EXCHANGE, RabbitMQConfig.ROUTING_KEY, evento);
 
 		return convertirADto(guardada);
-
 	}
 
 	@Override
@@ -150,7 +140,7 @@ public class FacturacionServiceImp implements FacturacionService {
 		dto.setTotal(facturacion.getTotal());
 
 		dto.setDetalles(facturacion.getDetalles().stream().map(detalle -> {
-			com.app.Facturacion.dto.DetalleFacturaDto detalleDto = new com.app.Facturacion.dto.DetalleFacturaDto();
+			DetalleFacturaDto detalleDto = new DetalleFacturaDto();
 
 			detalleDto.setId(detalle.getId());
 			detalleDto.setProductoId(detalle.getProductoId());

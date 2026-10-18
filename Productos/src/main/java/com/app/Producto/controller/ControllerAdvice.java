@@ -1,14 +1,19 @@
 package com.app.Producto.controller;
 
 import java.time.LocalDateTime;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ProblemDetail;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.context.request.ServletWebRequest;
@@ -41,11 +46,60 @@ public class ControllerAdvice extends ResponseEntityExceptionHandler {
         return construir(HttpStatus.BAD_REQUEST, "P-400", ex.getMessage(), request.getRequestURI());
     }
 
+    // NUEVO: restricciones de base de datos (duplicados, claves foráneas, etc.)
+    @ExceptionHandler(DataIntegrityViolationException.class)
+    public ResponseEntity<ErrorDto> integridadHandler(DataIntegrityViolationException ex,
+                                                      HttpServletRequest request) {
+        log.warn("Violación de integridad en {}: {}", request.getRequestURI(),
+                ex.getMostSpecificCause().getMessage());
+        return construir(HttpStatus.CONFLICT, "P-409",
+                "La operación viola una restricción de datos", request.getRequestURI());
+    }
+
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorDto> exceptionHandler(Exception ex, HttpServletRequest request) {
         log.error("Error inesperado en {}", request.getRequestURI(), ex);
         return construir(HttpStatus.INTERNAL_SERVER_ERROR, "P-500",
                 "Error interno del servidor", request.getRequestURI());
+    }
+
+    // NUEVO: errores de @Valid, campo por campo
+    @Override
+    protected ResponseEntity<Object> handleMethodArgumentNotValid(
+            MethodArgumentNotValidException ex, HttpHeaders headers,
+            HttpStatusCode status, WebRequest request) {
+
+        Map<String, String> errores = new LinkedHashMap<>();
+        ex.getBindingResult().getFieldErrors()
+                .forEach(fe -> errores.putIfAbsent(fe.getField(), fe.getDefaultMessage()));
+
+        ErrorDto error = ErrorDto.builder()
+                .timestamp(LocalDateTime.now())
+                .status(HttpStatus.BAD_REQUEST.value())
+                .code("P-400")
+                .message("Hay errores de validación en la solicitud")
+                .path(((ServletWebRequest) request).getRequest().getRequestURI())
+                .errores(errores)
+                .build();
+
+        return ResponseEntity.badRequest().body(error);
+    }
+
+    // NUEVO: JSON mal formado o tipos incorrectos, con mensaje en español
+    @Override
+    protected ResponseEntity<Object> handleHttpMessageNotReadable(
+            HttpMessageNotReadableException ex, HttpHeaders headers,
+            HttpStatusCode status, WebRequest request) {
+
+        ErrorDto error = ErrorDto.builder()
+                .timestamp(LocalDateTime.now())
+                .status(HttpStatus.BAD_REQUEST.value())
+                .code("P-400")
+                .message("El cuerpo de la solicitud es inválido o está mal formado")
+                .path(((ServletWebRequest) request).getRequest().getRequestURI())
+                .build();
+
+        return ResponseEntity.badRequest().body(error);
     }
 
     @Override
