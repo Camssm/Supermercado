@@ -1,13 +1,17 @@
 package com.app.Facturacion.service;
 
 import java.util.List;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
 import org.springframework.web.client.RestTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 
+import com.app.Facturacion.config.RabbitMQConfig;
+import com.app.Facturacion.senders.FacturacionEvent;
 import com.app.Facturacion.dto.FacturacionAgregarDto;
 import com.app.Facturacion.dto.FacturacionDto;
 import com.app.Facturacion.entity.Facturacion;
@@ -22,6 +26,9 @@ public class FacturacionServiceImp implements FacturacionService {
 
 	@Autowired
 	private RestTemplate restTemplate;
+
+	@Autowired
+	private RabbitTemplate rabbitTemplate;
 
 	@Override
 	public List<FacturacionDto> listar() {
@@ -80,7 +87,28 @@ public class FacturacionServiceImp implements FacturacionService {
 
 		Facturacion guardada = facturacionRepository.save(facturacion);
 
+		FacturacionEvent evento = new FacturacionEvent();
+
+		evento.setFacturaId(guardada.getId());
+
+		List<FacturacionEvent.ProductoVendidoEvent> productosVendidos = new ArrayList<>();
+
+		for (var detalle : guardada.getDetalles()) {
+
+			FacturacionEvent.ProductoVendidoEvent producto = new FacturacionEvent.ProductoVendidoEvent();
+
+			producto.setProductoId(detalle.getProductoId());
+			producto.setCantidad(detalle.getCantidad());
+
+			productosVendidos.add(producto);
+		}
+
+		evento.setProductos(productosVendidos);
+
+		rabbitTemplate.convertAndSend(RabbitMQConfig.EXCHANGE, RabbitMQConfig.ROUTING_KEY, evento);
+
 		return convertirADto(guardada);
+
 	}
 
 	@Override
