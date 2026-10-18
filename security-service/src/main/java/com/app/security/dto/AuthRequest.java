@@ -1,4 +1,4 @@
-package com.escuela.security.dto;
+package com.app.security.dto;
 
 public class AuthRequest {
 

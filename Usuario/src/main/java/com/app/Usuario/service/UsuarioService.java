@@ -1,12 +1,16 @@
+
 package com.app.Usuario.service;
 
 import java.util.List;
 
-import com.app.Usuario.entity.Usuario;
+import com.app.Usuario.dto.UsuarioDto;
+import com.app.Usuario.dto.UsuarioRegistroDto;
 
 public interface UsuarioService {
 
-	public List<Usuario> listar();
+    UsuarioDto registrar(UsuarioRegistroDto registro);
 
-	public void agregar(Usuario usuario);
+    List<UsuarioDto> listar();
+
+    UsuarioDto obtenerPorNombreCompleto(String nombreCompleto);
 }

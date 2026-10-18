@@ -1,8 +1,4 @@
-package com.escuela.security.controller;
-
-import com.escuela.security.dto.AuthRequest;
-import com.escuela.security.dto.AuthResponse;
-import com.escuela.security.service.JwtProvider;
+package com.app.security.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -11,6 +7,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import com.app.security.dto.AuthRequest;
+import com.app.security.dto.AuthResponse;
+import com.app.security.service.JwtProvider;
 
 @RestController
 @RequestMapping("/auth")

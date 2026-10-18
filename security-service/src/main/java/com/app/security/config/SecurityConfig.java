@@ -1,4 +1,4 @@
-package com.escuela.security.config;
+package com.app.security.config;
 
 import java.util.Arrays;
 

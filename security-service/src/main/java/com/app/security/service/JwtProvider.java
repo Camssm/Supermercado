@@ -1,4 +1,4 @@
-package com.escuela.security.service;
+package com.app.security.service;
 
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
