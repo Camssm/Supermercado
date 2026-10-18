@@ -1,4 +1,3 @@
-
 package com.app.Facturacion.controller;
 
 import java.util.List;
@@ -16,6 +15,8 @@ import com.app.Facturacion.dto.FacturacionAgregarDto;
 import com.app.Facturacion.dto.FacturacionDto;
 import com.app.Facturacion.service.FacturacionService;
 
+import jakarta.validation.Valid;
+
 @RestController
 @RequestMapping(value = "/api/facturacion")
 public class FacturacionController {
@@ -25,18 +26,16 @@ public class FacturacionController {
 
 	@RequestMapping(value = "/facturas", method = RequestMethod.GET)
 	public ResponseEntity<List<FacturacionDto>> listar() {
-
 		return ResponseEntity.ok(facturacionService.listar());
 	}
 
 	@RequestMapping(value = "/facturas/{id}", method = RequestMethod.GET)
 	public ResponseEntity<FacturacionDto> buscarPorId(@PathVariable Long id) {
-
 		return ResponseEntity.ok(facturacionService.buscarPorId(id));
 	}
 
 	@RequestMapping(value = "/agregar", method = RequestMethod.PUT)
-	public ResponseEntity<FacturacionDto> agregar(@RequestBody FacturacionAgregarDto facturaDto) {
+	public ResponseEntity<FacturacionDto> agregar(@Valid @RequestBody FacturacionAgregarDto facturaDto) {
 
 		FacturacionDto factura = facturacionService.agregar(facturaDto);
 

@@ -3,6 +3,8 @@ package com.app.Facturacion.dto;
 import com.app.Facturacion.entity.DetalleFactura;
 import com.app.Facturacion.mappers.IMapper;
 
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Positive;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -10,16 +12,21 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class DetalleFacturaAgregarDto implements IMapper<DetalleFactura> {
 
-    private Long productoId;
-    private Integer cantidad;
+	@NotNull(message = "El ID del producto es obligatorio")
+	@Positive(message = "El ID del producto debe ser mayor que cero")
+	private Long productoId;
 
-    @Override
-    public DetalleFactura mapperTo() {
-        DetalleFactura detalle = new DetalleFactura();
+	@NotNull(message = "La cantidad es obligatoria")
+	@Positive(message = "La cantidad debe ser mayor que cero")
+	private Integer cantidad;
 
-        detalle.setProductoId(productoId);
-        detalle.setCantidad(cantidad);
+	@Override
+	public DetalleFactura mapperTo() {
+		DetalleFactura detalle = new DetalleFactura();
 
-        return detalle;
-    }
+		detalle.setProductoId(productoId);
+		detalle.setCantidad(cantidad);
+
+		return detalle;
+	}
 }

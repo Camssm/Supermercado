@@ -14,6 +14,8 @@ import org.springframework.web.bind.annotation.RestController;
 import com.app.Usuario.entity.Usuario;
 import com.app.Usuario.service.UsuarioService;
 
+import jakarta.validation.Valid;
+
 @RestController
 @RequestMapping(value = "/api/usuario")
 public class UsuarioController {
@@ -28,7 +30,7 @@ public class UsuarioController {
 	}
 
 	@RequestMapping(value = "/agregar", method = RequestMethod.PUT, produces = MediaType.APPLICATION_JSON_VALUE)
-	public ResponseEntity<List<Usuario>> agregar(@RequestBody Usuario usuario)
+	public ResponseEntity<Void> agregar(@Valid @RequestBody Usuario usuario)
 	{
 		usuarioService.agregar(usuario);
 		return new ResponseEntity<>(HttpStatus.CREATED);

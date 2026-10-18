@@ -1,22 +1,30 @@
 package com.app.Facturacion.service;
 
-import java.util.List;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
-import org.springframework.web.client.RestTemplate;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.client.ResourceAccessException;
+import org.springframework.web.client.RestTemplate;
 
 import com.app.Facturacion.config.RabbitMQConfig;
-import com.app.Facturacion.senders.FacturacionEvent;
+import com.app.Facturacion.dto.DetalleFacturaDto;
 import com.app.Facturacion.dto.FacturacionAgregarDto;
 import com.app.Facturacion.dto.FacturacionDto;
-import com.app.Facturacion.entity.Facturacion;
-import com.app.Facturacion.repository.FacturacionRepository;
 import com.app.Facturacion.dto.ProductoDto;
+import com.app.Facturacion.entity.Facturacion;
+import com.app.Facturacion.exception.BusinessException;
+import com.app.Facturacion.exception.FacturaNoEncontradaException;
+import com.app.Facturacion.repository.FacturacionRepository;
+import com.app.Facturacion.senders.FacturacionEvent;
 
 @Service
 public class FacturacionServiceImp implements FacturacionService {
@@ -36,16 +44,20 @@ public class FacturacionServiceImp implements FacturacionService {
 	}
 
 	@Override
+	@Transactional
 	public FacturacionDto agregar(FacturacionAgregarDto dto) {
+
 		if (dto == null || dto.getDetalles() == null || dto.getDetalles().isEmpty()) {
 			throw new IllegalArgumentException("La factura debe tener al menos un producto");
 		}
 
 		Facturacion facturacion = dto.mapperTo();
 
+		// Sumamos las cantidades de los productos repetidos.
 		Map<Long, Integer> cantidades = new HashMap<>();
 
 		for (var detalle : facturacion.getDetalles()) {
+
 			if (detalle.getProductoId() == null || detalle.getProductoId() <= 0) {
 				throw new IllegalArgumentException("El ID del producto no es válido");
 			}
@@ -57,24 +69,24 @@ public class FacturacionServiceImp implements FacturacionService {
 			cantidades.merge(detalle.getProductoId(), detalle.getCantidad(), Integer::sum);
 		}
 
+		// Consultamos los productos y comprobamos el stock.
 		Map<Long, ProductoDto> productos = new HashMap<>();
 
 		for (Long productoId : cantidades.keySet()) {
-			ProductoDto producto = restTemplate.getForObject("http://MS-PRODUCTOS/api/productos/" + productoId,
-					ProductoDto.class);
 
-			if (producto == null) {
-				throw new RuntimeException("No se pudo obtener el producto " + productoId);
-			}
+			ProductoDto producto = obtenerProducto(productoId);
 
 			if (producto.getStock() == null || producto.getStock() < cantidades.get(productoId)) {
-				throw new IllegalArgumentException("Stock insuficiente para el producto: " + producto.getNombre());
+				throw new BusinessException("F-409", HttpStatus.CONFLICT,
+						"Stock insuficiente para el producto: " + producto.getNombre());
 			}
 
 			productos.put(productoId, producto);
 		}
 
+		// Completamos los detalles con los datos obtenidos de Productos.
 		for (var detalle : facturacion.getDetalles()) {
+
 			ProductoDto producto = productos.get(detalle.getProductoId());
 
 			detalle.setNombreProducto(producto.getNombre());
@@ -82,13 +94,14 @@ public class FacturacionServiceImp implements FacturacionService {
 			detalle.calcularSubtotal();
 		}
 
-		facturacion.setFecha(java.time.LocalDateTime.now());
+		facturacion.setFecha(LocalDateTime.now());
 		facturacion.calcularTotal();
 
+		// Guardamos la factura.
 		Facturacion guardada = facturacionRepository.save(facturacion);
 
+		// Preparamos el evento para informar las ventas a Productos.
 		FacturacionEvent evento = new FacturacionEvent();
-
 		evento.setFacturaId(guardada.getId());
 
 		List<FacturacionEvent.ProductoVendidoEvent> productosVendidos = new ArrayList<>();
@@ -105,21 +118,45 @@ public class FacturacionServiceImp implements FacturacionService {
 
 		evento.setProductos(productosVendidos);
 
+		// Publicamos el evento para que Productos procese la venta.
 		rabbitTemplate.convertAndSend(RabbitMQConfig.EXCHANGE, RabbitMQConfig.ROUTING_KEY, evento);
 
 		return convertirADto(guardada);
-
 	}
 
 	@Override
 	public FacturacionDto buscarPorId(Long id) {
+
 		Facturacion facturacion = facturacionRepository.findById(id)
-				.orElseThrow(() -> new RuntimeException("No existe la factura con id " + id));
+				.orElseThrow(() -> new FacturaNoEncontradaException(id));
 
 		return convertirADto(facturacion);
 	}
 
+	private ProductoDto obtenerProducto(Long productoId) {
+
+		try {
+			ProductoDto producto = restTemplate.getForObject("http://MS-PRODUCTOS/api/productos/" + productoId,
+					ProductoDto.class);
+
+			if (producto == null) {
+				throw new BusinessException("F-502", HttpStatus.BAD_GATEWAY,
+						"El servicio de productos devolvió una respuesta vacía");
+			}
+
+			return producto;
+
+		} catch (HttpClientErrorException.NotFound e) {
+			throw new BusinessException("F-404", HttpStatus.NOT_FOUND, "El producto " + productoId + " no existe");
+
+		} catch (ResourceAccessException e) {
+			throw new BusinessException("F-503", HttpStatus.SERVICE_UNAVAILABLE,
+					"El servicio de productos no está disponible. " + "Intentá de nuevo en unos minutos");
+		}
+	}
+
 	private FacturacionDto convertirADto(Facturacion facturacion) {
+
 		FacturacionDto dto = new FacturacionDto();
 
 		dto.setId(facturacion.getId());
@@ -128,7 +165,8 @@ public class FacturacionServiceImp implements FacturacionService {
 		dto.setTotal(facturacion.getTotal());
 
 		dto.setDetalles(facturacion.getDetalles().stream().map(detalle -> {
-			com.app.Facturacion.dto.DetalleFacturaDto detalleDto = new com.app.Facturacion.dto.DetalleFacturaDto();
+
+			DetalleFacturaDto detalleDto = new DetalleFacturaDto();
 
 			detalleDto.setId(detalle.getId());
 			detalleDto.setProductoId(detalle.getProductoId());
