@@ -1,0 +1,12 @@
+# Solo se usa con docker-compose.dev.yml (SPRING_PROFILES_ACTIVE=docker en el config server).
+# El repo de configuracion (perfil dev) apunta a localhost; estas propiedades se envian a
+# todos los clientes y lo reemplazan por los nombres de los contenedores.
+spring:
+  cloud:
+    config:
+      server:
+        overrides:
+          eureka.client.service-url.defaultZone: http://eurekaserver:8761/eureka/
+          eureka.instance.prefer-ip-address: true
+          spring.rabbitmq.host: rabbitmq
+          usuario.url: http://ms-usuario:8083
