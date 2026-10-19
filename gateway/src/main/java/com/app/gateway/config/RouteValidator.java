@@ -20,6 +20,7 @@ public class RouteValidator {
 	        "/api/usuario/login",
 	        "/api/usuario/registrar",
 	        "/auth/v3/api-docs",
+	        "/api/productos/productos",
 	        "/api/productos/v3/api-docs",
 	        "/api/facturas/v3/api-docs",
 	        "/api/usuario/v3/api-docs",

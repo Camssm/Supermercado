@@ -10,6 +10,7 @@ import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 
 import com.app.security.dto.AuthRequest;
+import com.app.security.dto.RegistroRequest;
 import com.app.security.dto.UsuarioLoginResponse;
 
 @Component
@@ -43,5 +44,13 @@ public class UsuarioClient {
 
             throw ex;
         }
+    }
+
+    public void registrar(RegistroRequest request) {
+        restTemplate.postForEntity(
+            usuarioUrl + "/api/usuario/registro",
+            new HttpEntity<>(request),
+            Void.class
+        );
     }
 }

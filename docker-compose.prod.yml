@@ -173,6 +173,7 @@ services:
     container_name: gateway
     restart: on-failure
     environment:
+      CORS_ALLOWED_ORIGIN: ${CORS_ALLOWED_ORIGIN:-http://localhost:4200}
       SPRING_PROFILES_ACTIVE: prod
       EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eurekaserver:8761/eureka/
       EUREKA_INSTANCE_PREFER_IPADDRESS: "true"

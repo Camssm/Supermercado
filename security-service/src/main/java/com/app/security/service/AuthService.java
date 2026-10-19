@@ -5,6 +5,7 @@ import org.springframework.stereotype.Service;
 import com.app.security.client.UsuarioClient;
 import com.app.security.dto.AuthRequest;
 import com.app.security.dto.AuthResponse;
+import com.app.security.dto.RegistroRequest;
 import com.app.security.dto.UsuarioLoginResponse;
 
 @Service
@@ -33,4 +34,8 @@ public class AuthService {
 
         return new AuthResponse(token);
     }
+
+	public void registrar(RegistroRequest request) {
+		usuarioClient.registrar(request);
+	}
 }
