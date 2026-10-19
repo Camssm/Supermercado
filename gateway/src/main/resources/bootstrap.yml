@@ -1,0 +1,19 @@
+spring:
+  profiles:
+    default: dev
+---
+spring:
+  config:
+    activate:
+      on-profile: dev
+    import: "optional:configserver:http://localhost:8888"
+  server:
+    port: '8080'
+---
+spring:
+  config:
+    activate:
+      on-profile: prod
+    import: "optional:configserver:http://configserver:8888"
+  server:
+    port: '8080'

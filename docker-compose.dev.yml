@@ -1,0 +1,180 @@
+services:
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: rabbitmq-supermercado
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    networks:
+      - supermercado-network
+
+  eurekaserver:
+    build:
+      context: .
+      dockerfile: registry/Dockerfile
+    container_name: eurekaserver
+    ports:
+      - "8761:8761"
+    networks:
+      - supermercado-network
+
+  configserver:
+    build:
+      context: .
+      dockerfile: springconfigserver/dockerfile
+    container_name: configserver
+    environment:
+      # Activa application-docker.yml: cambia localhost por los nombres de los contenedores
+      SPRING_PROFILES_ACTIVE: docker
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eurekaserver:8761/eureka/
+    ports:
+      - "8888:8888"
+    depends_on:
+      - eurekaserver
+    healthcheck:
+      test: ["CMD-SHELL", "bash -c 'exec 3<>/dev/tcp/localhost/8888'"]
+      interval: 10s
+      timeout: 5s
+      retries: 20
+      start_period: 20s
+    networks:
+      - supermercado-network
+
+  ms-usuario:
+    build:
+      context: .
+      dockerfile: Usuario/Dockerfile
+    container_name: ms-usuario
+    restart: on-failure
+    environment:
+      SPRING_PROFILES_ACTIVE: dev
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eurekaserver:8761/eureka/
+      CONFIG_SERVER_URL: http://configserver:8888
+    depends_on:
+      configserver:
+        condition: service_healthy
+    ports:
+      - "8083:8083"
+    networks:
+      - supermercado-network
+
+  ms-security:
+    build:
+      context: .
+      dockerfile: security-service/Dockerfile
+    container_name: ms-security
+    restart: on-failure
+    environment:
+      SPRING_PROFILES_ACTIVE: dev
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eurekaserver:8761/eureka/
+      CONFIG_SERVER_URL: http://configserver:8888
+    depends_on:
+      configserver:
+        condition: service_healthy
+    ports:
+      - "8085:8085"
+    networks:
+      - supermercado-network
+
+  ms-productos:
+    build:
+      context: .
+      dockerfile: Productos/Dockerfile
+    container_name: ms-productos
+    restart: on-failure
+    environment:
+      SPRING_PROFILES_ACTIVE: dev
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eurekaserver:8761/eureka/
+      CONFIG_SERVER_URL: http://configserver:8888
+      SPRING_RABBITMQ_HOST: rabbitmq
+    depends_on:
+      configserver:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    ports:
+      - "8081:8081"
+    networks:
+      - supermercado-network
+
+  ms-facturacion:
+    build:
+      context: .
+      dockerfile: Facturacion/Dockerfile
+    container_name: ms-facturacion
+    restart: on-failure
+    environment:
+      SPRING_PROFILES_ACTIVE: dev
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eurekaserver:8761/eureka/
+      CONFIG_SERVER_URL: http://configserver:8888
+      SPRING_RABBITMQ_HOST: rabbitmq
+    depends_on:
+      configserver:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    ports:
+      - "8082:8082"
+    networks:
+      - supermercado-network
+
+  gateway:
+    build:
+      context: .
+      dockerfile: gateway/dockerfile
+    container_name: gateway
+    restart: on-failure
+    environment:
+      SPRING_PROFILES_ACTIVE: dev
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eurekaserver:8761/eureka/
+      CONFIG_SERVER_URL: http://configserver:8888
+    depends_on:
+      configserver:
+        condition: service_healthy
+      ms-security:
+        condition: service_started
+      ms-usuario:
+        condition: service_started
+      ms-productos:
+        condition: service_started
+      ms-facturacion:
+        condition: service_started
+    ports:
+      - "8080:8080"
+    networks:
+      - supermercado-network
+
+  admin-service:
+    build:
+      context: .
+      dockerfile: admin-service/Dockerfile
+    container_name: admin-service
+    restart: on-failure
+    environment:
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eurekaserver:8761/eureka/
+    ports:
+      - "9090:9090"
+    depends_on:
+      - eurekaserver
+    networks:
+      - supermercado-network
+
+  frontend:
+    build:
+      context: https://github.com/sabriAla/Supermercado-Angular.git#main
+    container_name: frontend-supermercado
+    ports:
+      - "4200:80"
+    depends_on:
+      - gateway
+    networks:
+      - supermercado-network
+
+networks:
+  supermercado-network:
+    driver: bridge

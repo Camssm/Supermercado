@@ -1,0 +1,33 @@
+spring:
+  application:
+    name: ms-security
+  profiles:
+    active: ${SPRING_PROFILES_ACTIVE:dev}
+  config:
+    import: "optional:configserver:${CONFIG_SERVER_URL:http://localhost:8888}"
+
+---
+spring:
+  config:
+    activate:
+      on-profile: prod
+
+server:
+  port: 8085
+
+usuario:
+  url: ${USUARIO_URL:http://localhost:8083}
+
+jwt:
+  secret: ${JWT_SECRET:c3VwZXJtZXJjYWRvLWp3dC1zZWNyZXQtZGV2LTMyYiE=}
+  expiration: 86400000
+
+eureka:
+  client:
+    register-with-eureka: true
+    fetch-registry: true
+    service-url:
+      defaultZone: ${EUREKA_CLIENT_SERVICEURL_DEFAULTZONE:http://localhost:8761/eureka/}
+
+gateway:
+  internal-secret: ${GATEWAY_INTERNAL_SECRET:supermercado-gateway-secret}
